@@ -15,6 +15,9 @@ const int bps4 = 38400;
 const int bps5 = 57600;
 
 int counter = 1;
+unsigned long changeTime = 0;
+unsigned long connectionError = 0;
+unsigned long messageError = 0;
 
 void setup() {
     pinMode(button, INPUT); 
@@ -29,7 +32,7 @@ void loop() {
 
     buttonState = digitalRead(button); //check if button is pressed and it is over 5 seconds since last button press
     if (buttonState != lastButtonState) {
-        if(buttonState == HIGH){//call the function to change the baudrate
+        if((buttonState == HIGH) && (millis() - changeTime) > 2000){//call the function to change the baudrate
             changeBPS();
 
             counter++;
@@ -45,11 +48,19 @@ void loop() {
         if (nmeaDecoder.decode(mySerial.read())) { //if it's a valid NMEA sentence   
             Serial.println(nmeaDecoder.sentence()); // print it 
         }else{
-            Serial.println("Error: Message could not be decoded");
+            if (millis() - messageError > 10000){
+                Serial.println("Error: Message could not be decoded");
+                messageError = millis();
+            }
         } 
     }else{
-        Serial.println("No connection");
+        if (millis() - connectionError > 15000){
+            Serial.println("No connection");
+            connectionError = millis();
+        }
     }
+
+
 }
 
 void changeBPS(){
@@ -70,4 +81,6 @@ void changeBPS(){
             mySerial.begin(bps5);
             Serial.println("Data rate changed: 57600bps");
     }
+
+    changeTime = millis();
 }
