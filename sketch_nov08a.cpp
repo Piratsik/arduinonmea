@@ -6,6 +6,7 @@ NMEA nmeaDecoder(ALL);
 
 const int button = 9;
 int buttonState = 0;
+int lastButtonState = 0;
 
 const int bps1 = 4800;
 const int bps2 = 9600;
@@ -27,9 +28,18 @@ void setup() {
 void loop() {
 
     buttonState = digitalRead(button); //check if button is pressed and it is over 5 seconds since last button press
-    if(buttonState == HIGH){//call the function to change the baudrate
-        changeBPS();
+    if (buttonState != lastButtonState) {
+        if(buttonState == HIGH){//call the function to change the baudrate
+            changeBPS();
+
+            counter++;
+
+            if (counter > 100){
+                counter = 1;
+            }
+        }
     }
+    lastButtonState = buttonState;
 
     if (mySerial.available()) { //if something is incoming through the Serial Port
         if (nmeaDecoder.decode(mySerial.read())) { //if it's a valid NMEA sentence   
@@ -59,11 +69,5 @@ void changeBPS(){
         case(4): 
             mySerial.begin(bps5);
             Serial.println("Data rate changed: 57600bps");
-    }
-
-    counter++;
-
-    if (counter > 100){
-        counter = 1;
     }
 }
