@@ -24,14 +24,16 @@ void setup() {
     mySerial.begin(4800);
 }
 
-void loop() {   
+void loop() {
+
+    buttonState = digitalRead(button); //check if button is pressed and it is over 5 seconds since last button press
+    if(buttonState == HIGH){//call the function to change the baudrate
+        changeBPS();
+    }
+
     if (mySerial.available()) { //if something is incoming through the Serial Port
         if (nmeaDecoder.decode(mySerial.read())) { //if it's a valid NMEA sentence   
             Serial.println(nmeaDecoder.sentence()); // print it 
-            buttonState = digitalRead(button); //check if button is pressed and it is over 5 seconds since last button press
-            if(buttonState == HIGH){//call the function to change the baudrate
-                changeBPS();
-            }
         }else{
             Serial.println("Error: Message could not be decoded");
         } 
@@ -62,6 +64,6 @@ void changeBPS(){
     counter++;
 
     if (counter > 100){
-        counter = 1
+        counter = 1;
     }
 }
