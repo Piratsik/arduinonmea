@@ -22,13 +22,17 @@ unsigned long messageError = 0;
 void setup() {
     pinMode(button, INPUT); 
     Serial.begin(9600);
-    Serial.println("Goodnight moon!");
 
     // set the data rate for the SoftwareSerial port
     mySerial.begin(4800);
 }
 
 void loop() {
+
+    if(Serial.available() > 0){
+        int bps = Serial.parseInt();
+        changeBPS(bps);
+    }
 
     buttonState = digitalRead(button); //check if button is pressed and it is over 5 seconds since last button press
     if (buttonState != lastButtonState) {
@@ -82,4 +86,8 @@ void changeBPS(){
     }
 
     changeTime = millis();
+}
+
+void changeBPS(int value){
+    mySerial.begin(value);
 }
